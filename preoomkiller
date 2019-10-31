@@ -1,0 +1,86 @@
+#!/usr/bin/env python
+
+"""
+Sourced from https://github.com/albertz/helpers/blob/master/cgroup-mem-limit-watcher.py with some modifications
+
+Install (to /usr/local/bin): `$ curl -sSf https://s3.amazonaws.com/artsy-provisioning-public/install-preoomkiller.sh | sh`
+
+Use:
+  - Put this in your docker-entrypoint script to run in the background): `exec /usr/local/bin/preoomkiller &`
+  - Set ENABLE_PREOOMKILLER=1 in the container's environment to enable
+  - Set PREOOMKILLER_MEMORY_USE_FACTOR, PREOOMKILLER_POLL_INTERNAL, PREOOMKILLER_KILL_SIGNAL, PREOOMKILLER_KILL_PID as desired
+"""
+
+import sys, time, os
+import resource, signal
+
+ENABLE_PREOOMKILLER = os.environ.get("ENABLE_PREOOMKILLER")
+MEMORY_USE_FACTOR = float(os.environ.get("PREOOMKILLER_MEMORY_USE_FACTOR", "0.95"))
+POLL_INTERNAL = int(os.environ.get("PREOOMKILLER_POLL_INTERNAL", "10"))
+KILL_SIGNAL = int(os.environ.get("PREOOMKILLER_KILL_SIGNAL", signal.SIGTERM))
+KILL_PID = int(os.environ.get("PREOOMKILLER_KILL_PID", "1"))
+PARENT_PID = os.getppid()
+
+def byteNumRepr(c):
+  if c < 1024: return "%i B" % c
+  S = "KMG"
+  i = 0
+  while i < len(S) - 1:
+    if c < 0.8 * 1024 ** (i + 2): break
+    i += 1
+  f = float(c) / (1024 ** (i + 1))
+  return "%.1f %sB" % (f, S[i])
+
+def getRssLimit():
+  return int(open("/sys/fs/cgroup/memory/memory.limit_in_bytes").read())
+
+def getTotalRss():
+  stats = open("/sys/fs/cgroup/memory/memory.stat").read().splitlines()
+  stats = dict([(key,int(value)) for key,value in map(str.split, stats)])
+  return stats["rss"]
+
+def getMemoryStats():
+  try:
+    limit = getRssLimit()
+    used = getTotalRss()
+    fact = float(used) / limit
+  except Exception:
+    print("Could not calculate memory use factor - am I running in a container?")
+    raise
+  return (limit, used, fact)
+
+# Force disable stdout buffering.
+sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 1)
+
+def main():
+  if ENABLE_PREOOMKILLER is None:
+    print("Not starting preoomkiller as ENABLE_PREOOMKILLER is unset!")
+    return
+
+  print("Starting preoomkiller with memory use factor: %s, poll internal: %s seconds\n" % (MEMORY_USE_FACTOR, POLL_INTERNAL))
+
+  while True:
+    # If the parent process has died, stop
+    if os.getppid() != PARENT_PID:
+      print("Parent process has died. Exiting.")
+      break
+
+    limit, used, fact = getMemoryStats()
+    print("Mem limit: %s, Current rss: %s, Percent mem used: %s%%" % (byteNumRepr(limit), byteNumRepr(used), round(100.0*fact)))
+
+    if fact >= MEMORY_USE_FACTOR:
+      print("Container is over configured memory use factor!")
+
+      # Kill the container's init process and stop
+      print("Killing container with signal %s and exiting." % KILL_SIGNAL)
+      os.kill(KILL_PID, KILL_SIGNAL)
+      break
+
+    time.sleep(POLL_INTERNAL)
+
+if __name__ == "__main__":
+  try:
+    main()
+  except Exception:
+    #TODO catch all signal
+    raise
