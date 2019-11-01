@@ -17,7 +17,7 @@ Manually `ADD` `preoomkiller` to your Docker image somewhere on your `$PATH`
 
 In your container's init script run `preoomkiller` in the background with `exec /usr/local/bin/preoomkiller &`
 
-`preoomkiller` is observed to use approximately 4Mb running on Python 2 and 6Mb running on Python 3
+`preoomkiller` is observed to use approximately 3.4Mb running on Python 2 and 5.7Mb running on Python 3
 
 ## Configuration options
 
@@ -30,6 +30,8 @@ In your container's init script run `preoomkiller` in the background with `exec 
 `PREOOMKILLER_KILL_SIGNAL` (integer) - what signal to send to the process (default `SIGTERM` / `15`)
 
 `PREOOMKILLER_KILL_PID` (integer) - what pid will receive a SIGTERM (default: the pid of the parent that spawned `preoomkiller`) If you don't start `preoomkiller` and your application's main process via an entrypoint script (see the example `docker-entrypoint.sh`) you can also set this to `1` to simply send the signal to the root process.  `preoomkiller` will exit after sending a signal or its parent process dies.  Note: make sure you're using an init system like [dumb-init](https://github.com/Yelp/dumb-init) to make sure the pid 1 process properly proxies signals to children
+
+`PREOOMKILLER_DEBUG` - if set, print memory statistics when polling
 
 ## Testing
 
