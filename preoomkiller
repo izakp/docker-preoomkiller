@@ -15,6 +15,7 @@ import sys, time, os
 import resource, signal
 
 ENABLE_PREOOMKILLER = os.environ.get("ENABLE_PREOOMKILLER")
+DEBUG = os.environ.get("PREOOMKILLER_DEBUG")
 MEMORY_USE_FACTOR = float(os.environ.get("PREOOMKILLER_MEMORY_USE_FACTOR", "0.95"))
 POLL_INTERNAL = int(os.environ.get("PREOOMKILLER_POLL_INTERNAL", "10"))
 KILL_SIGNAL = int(os.environ.get("PREOOMKILLER_KILL_SIGNAL", signal.SIGTERM))
@@ -58,6 +59,9 @@ def getMemoryStats():
     raise
   return (limit, used, fact)
 
+def printMemoryStats(limit, used, fact):
+  print("Mem limit: %s, Current rss: %s, Percent mem used: %s%%" % (byteNumRepr(limit), byteNumRepr(used), round(100.0*fact)))
+
 # Force disable stdout buffering.
 sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 1)
 
@@ -66,7 +70,7 @@ def main():
     print("Not starting preoomkiller as ENABLE_PREOOMKILLER is unset!")
     return
 
-  print("Starting preoomkiller with memory use factor: %s, poll internal: %s seconds\n" % (MEMORY_USE_FACTOR, POLL_INTERNAL))
+  print("Starting preoomkiller with memory use factor: %s, poll internal: %s seconds" % (MEMORY_USE_FACTOR, POLL_INTERNAL))
 
   while True:
     # If the parent process has died, stop
@@ -75,15 +79,18 @@ def main():
       sys.exit(0)
 
     limit, used, fact = getMemoryStats()
-    print("Mem limit: %s, Current rss: %s, Percent mem used: %s%%" % (byteNumRepr(limit), byteNumRepr(used), round(100.0*fact)))
 
     if fact >= MEMORY_USE_FACTOR:
       print("Container is over configured memory use factor!")
+      printMemoryStats(limit, used, fact)
 
       # Kill the container's init process and stop
       print("Killing container with signal %s and exiting." % KILL_SIGNAL)
       os.kill(KILL_PID, KILL_SIGNAL)
       sys.exit(0)
+
+    if DEBUG:
+      printMemoryStats(limit, used, fact)
 
     time.sleep(POLL_INTERNAL)
 
