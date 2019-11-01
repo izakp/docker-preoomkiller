@@ -15,6 +15,8 @@ Manually `ADD` `preoomkiller` to your Docker image somewhere on your `$PATH`
 
 In your container's init script run `preoomkiller` in the background with `exec /usr/local/bin/preoomkiller &`
 
+`preoomkiller` is observed to use approximately 4Mb running on Python 2 and 6Mb running on Python 3
+
 ## Configuration options
 
 `preoomkiller` won't start unless the environment variable `ENABLE_PREOOMKILLER` is set
