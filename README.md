@@ -7,7 +7,7 @@ Watches container memory use and softly kills the container with SIGTERM before 
 
 ## Install
 
-With `curl`: put `RUN curl -sSf https://s3.amazonaws.com/artsy-provisioning-public/install-preoomkiller.sh | sh` in your Dockerfile to install `preoomkiller` to `/usr/local/bin`
+With `curl`: put `RUN curl -sSf https://raw.githubusercontent.com/izakp/docker-preoomkiller/master/install-preoomkiller.sh | sh` in your Dockerfile to install `preoomkiller` to `/usr/local/bin`
 
 Manually `ADD` `preoomkiller` to your Docker image somewhere on your `$PATH`
 
@@ -34,7 +34,3 @@ In your container's init script run `preoomkiller` in the background with `exec 
 ## Building Docker images
 
 `make build-all`
-
-## Distribute
-
-TODO: Distribute via Github / AWS S3

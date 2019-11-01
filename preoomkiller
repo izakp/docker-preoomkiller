@@ -3,7 +3,7 @@
 """
 Sourced from https://github.com/albertz/helpers/blob/master/cgroup-mem-limit-watcher.py with some modifications
 
-Install (to /usr/local/bin): `$ curl -sSf https://s3.amazonaws.com/artsy-provisioning-public/install-preoomkiller.sh | sh`
+Install (to /usr/local/bin): `$ curl -sSf https://raw.githubusercontent.com/izakp/docker-preoomkiller/master/install-preoomkiller.sh | sh`
 
 Use:
   - Put this in your docker-entrypoint script to run in the background): `exec /usr/local/bin/preoomkiller &`
