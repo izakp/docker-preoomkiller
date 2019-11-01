@@ -1,9 +1,11 @@
 # docker-preoomkiller
-Watches container memory use and softly kills the container with SIGTERM before Docker does
+Watches container memory use and softly kills the container with SIGTERM before Docker OOMKills it
 
 ## Dependencies
 
-- Install Python 2 or 3 in your Docker image
+Python 2 / 3
+
+`preoomkiller` has no Python package dependencies so should work everywhere
 
 ## Install
 
