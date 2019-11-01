@@ -10,4 +10,3 @@ ENV ENABLE_PREOOMKILLER 1
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 
 CMD ["/docker-entrypoint.sh"]
-

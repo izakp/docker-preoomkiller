@@ -72,7 +72,7 @@ def main():
     # If the parent process has died, stop
     if os.getppid() != PARENT_PID:
       print("Parent process has died. Exiting.")
-      break
+      sys.exit(0)
 
     limit, used, fact = getMemoryStats()
     print("Mem limit: %s, Current rss: %s, Percent mem used: %s%%" % (byteNumRepr(limit), byteNumRepr(used), round(100.0*fact)))
@@ -83,7 +83,7 @@ def main():
       # Kill the container's init process and stop
       print("Killing container with signal %s and exiting." % KILL_SIGNAL)
       os.kill(KILL_PID, KILL_SIGNAL)
-      break
+      sys.exit(0)
 
     time.sleep(POLL_INTERNAL)
 
