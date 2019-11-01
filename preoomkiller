@@ -11,8 +11,7 @@ Use:
   - Set PREOOMKILLER_MEMORY_USE_FACTOR, PREOOMKILLER_POLL_INTERNAL, PREOOMKILLER_KILL_SIGNAL, PREOOMKILLER_KILL_PID as desired
 """
 
-import sys, time, os
-import resource, signal
+import sys, time, os, signal
 
 ENABLE_PREOOMKILLER = os.environ.get("ENABLE_PREOOMKILLER")
 DEBUG = os.environ.get("PREOOMKILLER_DEBUG")
@@ -25,7 +24,7 @@ KILL_PID = int(os.environ.get("PREOOMKILLER_KILL_PID", PARENT_PID))
 EXIT_SIGNALS = [signal.SIGHUP, signal.SIGINT, signal.SIGQUIT, signal.SIGPIPE, signal.SIGTERM]
 
 def on_shudown(signum, frame):
-  print("Received signal %s - shutting down." % signum)
+  print("PreOOMKiller: Received signal %s - shutting down." % signum)
   exit(0)
 
 for sig in EXIT_SIGNALS:
@@ -55,37 +54,40 @@ def getMemoryStats():
     used = getTotalRss()
     fact = float(used) / limit
   except Exception:
-    print("Could not calculate memory use factor - am I running in a container?")
+    print("PreOOMKiller: Could not calculate memory use factor - am I running in a container?")
     raise
   return (limit, used, fact)
 
 def printMemoryStats(limit, used, fact):
-  print("Mem limit: %s, Current rss: %s, Percent mem used: %s%%" % (byteNumRepr(limit), byteNumRepr(used), round(100.0*fact)))
+  print("PreOOMKiller: Mem limit: %s, Current rss: %s, Percent mem used: %s%%" % (byteNumRepr(limit), byteNumRepr(used), round(100.0*fact)))
 
 # Force disable stdout buffering.
 sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 1)
 
 def main():
   if ENABLE_PREOOMKILLER is None:
-    print("Not starting preoomkiller as ENABLE_PREOOMKILLER is unset!")
+    print("PreOOMKiller: Not starting preoomkiller as ENABLE_PREOOMKILLER is unset!")
     return
 
-  print("Starting preoomkiller with memory use factor: %s, poll internal: %s seconds" % (MEMORY_USE_FACTOR, POLL_INTERNAL))
+  print("PreOOMKiller: Starting preoomkiller with memory use factor: %s, poll internal: %s seconds" % (MEMORY_USE_FACTOR, POLL_INTERNAL))
+
+  if DEBUG:
+    print("PreOOMKiller: ppid: %s" % PARENT_PID)
 
   while True:
     # If the parent process has died, stop
     if os.getppid() != PARENT_PID:
-      print("Parent process has died. Exiting.")
+      print("PreOOMKiller: Parent process has died. Exiting.")
       sys.exit(0)
 
     limit, used, fact = getMemoryStats()
 
     if fact >= MEMORY_USE_FACTOR:
-      print("Container is over configured memory use factor!")
+      print("PreOOMKiller: Container is over configured memory use factor!")
       printMemoryStats(limit, used, fact)
 
       # Kill the container's init process and stop
-      print("Killing container with signal %s and exiting." % KILL_SIGNAL)
+      print("PreOOMKiller: Killing container with signal %s and exiting." % KILL_SIGNAL)
       os.kill(KILL_PID, KILL_SIGNAL)
       sys.exit(0)
 

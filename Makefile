@@ -10,6 +10,12 @@ build-all:
 	$(MAKE) build-python2
 	$(MAKE) build-python3
 
+debug-python2:
+	docker run --name=preoomkiller_python2 -e PREOOMKILLER_DEBUG=1 --memory=64m --rm artsy/docker-preoomkiller:python2
+
+debug-python3:
+	docker run --name=preoomkiller_python3 -e PREOOMKILLER_DEBUG=1 --memory=64m --rm artsy/docker-preoomkiller:python3
+
 test-python2:
 	docker build -t artsy/docker-preoomkiller:python2-test -f Dockerfile.python2-test .
 	docker run --name=preoomkiller_test_python2 --memory=64m artsy/docker-preoomkiller:python2-test || true
