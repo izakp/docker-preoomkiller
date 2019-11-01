@@ -25,4 +25,10 @@ In your container's init script run `preoomkiller` in the background with `exec 
 
 `PREOOMKILLER_KILL_SIGNAL` (integer) - what signal to send to the process (default `SIGTERM` / `15`)
 
-`PREOOMKILLER_KILL_PID` (integer) - what pid will receive a SIGTERM (default `1`) Note: make sure you're using an init system like [dumb-init](https://github.com/Yelp/dumb-init) to make sure the pid 1 process properly proxies signals to children
+`PREOOMKILLER_KILL_PID` (integer) - what pid will receive a SIGTERM (default: the pid of the parent that spawned the `preoomkiller` process) Note: make sure you're using an init system like [dumb-init](https://github.com/Yelp/dumb-init) to make sure the pid 1 process properly proxies signals to children
+
+## Distribute
+
+TODO:
+  - Distribute via Github / AWS S3
+  - Test suite simulating a memory leak

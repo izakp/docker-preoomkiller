@@ -18,8 +18,17 @@ ENABLE_PREOOMKILLER = os.environ.get("ENABLE_PREOOMKILLER")
 MEMORY_USE_FACTOR = float(os.environ.get("PREOOMKILLER_MEMORY_USE_FACTOR", "0.95"))
 POLL_INTERNAL = int(os.environ.get("PREOOMKILLER_POLL_INTERNAL", "10"))
 KILL_SIGNAL = int(os.environ.get("PREOOMKILLER_KILL_SIGNAL", signal.SIGTERM))
-KILL_PID = int(os.environ.get("PREOOMKILLER_KILL_PID", "1"))
 PARENT_PID = os.getppid()
+KILL_PID = int(os.environ.get("PREOOMKILLER_KILL_PID", PARENT_PID))
+
+EXIT_SIGNALS = [signal.SIGHUP, signal.SIGINT, signal.SIGQUIT, signal.SIGPIPE, signal.SIGTERM]
+
+def on_shudown(signum, frame):
+  print("Received signal %s - shutting down." % signum)
+  exit(0)
+
+for sig in EXIT_SIGNALS:
+  signal.signal(sig, on_shudown)
 
 def byteNumRepr(c):
   if c < 1024: return "%i B" % c
@@ -79,8 +88,4 @@ def main():
     time.sleep(POLL_INTERNAL)
 
 if __name__ == "__main__":
-  try:
-    main()
-  except Exception:
-    #TODO catch all signal
-    raise
+  main()

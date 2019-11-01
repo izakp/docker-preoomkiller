@@ -1,0 +1,13 @@
+FROM python:3
+
+RUN apt-get update && apt-get install -y curl dumb-init
+
+ADD preoomkiller /usr/local/bin/preoomkiller
+ADD docker-entrypoint.sh docker-entrypoint.sh
+
+ENV ENABLE_PREOOMKILLER 1
+
+ENTRYPOINT ["/usr/bin/dumb-init", "--"]
+
+CMD ["/docker-entrypoint.sh"]
+
