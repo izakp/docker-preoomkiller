@@ -1,4 +1,4 @@
-.PHONY: build
+.PHONY: build-python2 build-python3 build-all debug-python2 debug-python3 test-python2 test-python3 test-all
 
 build-python2:
 	docker build -t artsy/docker-preoomkiller:python2 -f Dockerfile.python2 .
