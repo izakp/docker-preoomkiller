@@ -4,7 +4,7 @@
 
 set -e
 
-loc='https://raw.githubusercontent.com/izakp/docker-preoomkiller/master/preoomkiller'
+loc='https://raw.githubusercontent.com/cloudlogistics/docker-preoomkiller/master/preoomkiller'
 out='/usr/local/bin/preoomkiller'
 
 check_cmd() {
