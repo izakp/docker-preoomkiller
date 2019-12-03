@@ -8,7 +8,7 @@ Install (to /usr/local/bin): `$ curl -sSf https://raw.githubusercontent.com/izak
 Use:
   - Put this in your docker-entrypoint script to run in the background): `exec /usr/local/bin/preoomkiller &`
   - Set ENABLE_PREOOMKILLER=1 in the container's environment to enable
-  - Set PREOOMKILLER_MEMORY_USE_FACTOR, PREOOMKILLER_POLL_INTERNAL, PREOOMKILLER_KILL_SIGNAL, PREOOMKILLER_KILL_PID as desired
+  - Set PREOOMKILLER_MEMORY_USE_FACTOR, PREOOMKILLER_POLL_INTERVAL, PREOOMKILLER_KILL_SIGNAL, PREOOMKILLER_KILL_PID as desired
 """
 
 import sys, time, os, signal
@@ -16,7 +16,7 @@ import sys, time, os, signal
 ENABLE_PREOOMKILLER = os.environ.get("ENABLE_PREOOMKILLER")
 DEBUG = os.environ.get("PREOOMKILLER_DEBUG")
 MEMORY_USE_FACTOR = float(os.environ.get("PREOOMKILLER_MEMORY_USE_FACTOR", "0.95"))
-POLL_INTERNAL = int(os.environ.get("PREOOMKILLER_POLL_INTERNAL", "10"))
+POLL_INTERVAL = int(os.environ.get("PREOOMKILLER_POLL_INTERVAL", "10"))
 KILL_SIGNAL = int(os.environ.get("PREOOMKILLER_KILL_SIGNAL", signal.SIGTERM))
 PARENT_PID = os.getppid()
 KILL_PID = int(os.environ.get("PREOOMKILLER_KILL_PID", PARENT_PID))
@@ -69,7 +69,7 @@ def main():
     print("PreOOMKiller: Not starting preoomkiller as ENABLE_PREOOMKILLER is unset!")
     return
 
-  print("PreOOMKiller: Starting preoomkiller with memory use factor: %s, poll internal: %s seconds" % (MEMORY_USE_FACTOR, POLL_INTERNAL))
+  print("PreOOMKiller: Starting preoomkiller with memory use factor: %s, poll internal: %s seconds" % (MEMORY_USE_FACTOR, POLL_INTERVAL))
 
   if DEBUG:
     print("PreOOMKiller: ppid: %s" % PARENT_PID)
@@ -94,7 +94,7 @@ def main():
     if DEBUG:
       printMemoryStats(limit, used, fact)
 
-    time.sleep(POLL_INTERNAL)
+    time.sleep(POLL_INTERVAL)
 
 if __name__ == "__main__":
   main()
