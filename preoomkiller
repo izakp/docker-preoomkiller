@@ -86,10 +86,9 @@ def main():
       print("PreOOMKiller: Container is over configured memory use factor!")
       printMemoryStats(limit, used, fact)
 
-      # Kill the container's init process and stop
-      print("PreOOMKiller: Killing container with signal %s and exiting." % KILL_SIGNAL)
+      # Kill the configured process
+      print("PreOOMKiller: Killing process %s with signal %s." % (KILL_PID, KILL_SIGNAL))
       os.kill(KILL_PID, KILL_SIGNAL)
-      sys.exit(0)
 
     if DEBUG:
       printMemoryStats(limit, used, fact)
