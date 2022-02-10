@@ -36,7 +36,7 @@ You can also configure `preoomkiller` to send its signal to pid 1 (see below)
 
 `PREOOMKILLER_MEMORY_USE_FACTOR` - (float) at what percentage of used / total memory to kill the container (default `0.95`)
 
-`PREOOMKILLER_POLL_INTERNAL` (integer) - how many seconds to wait beween polling memory use (default `10`)
+`PREOOMKILLER_POLL_INTERVAL` (integer) - how many seconds to wait beween polling memory use (default `10`)
 
 `PREOOMKILLER_KILL_SIGNAL` (integer) - what signal to send to the process (default `SIGTERM` / `15`)
 
